@@ -42,4 +42,4 @@ Response:
 
 ## Notes
 - Rate limited to 5 requests/minute per IP
-- Handles static sites well, JS-heavy sites may need Playwright mode
+- Handles static sites and JS-heavy sites with Playwright 
