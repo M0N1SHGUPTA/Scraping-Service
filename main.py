@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException, status
-from requests.exceptions import HTTPError, ConnectionError, Timeout
+from httpx import HTTPStatusError, ConnectError, TimeoutException
 from scraper import scrape_text
 from schema import ScrapeRequest
 
@@ -15,17 +15,17 @@ async def scrape(data: ScrapeRequest):
             "text": text
         }
 
-    except Timeout:
+    except TimeoutException:
         raise HTTPException(
             status_code=status.HTTP_408_REQUEST_TIMEOUT, detail = "Request Time Out"
         )
     
-    except ConnectionError:
+    except ConnectError:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY, detail = "Could not connect to URL"
         )
     
-    except HTTPError as e:
+    except HTTPStatusError as e:
         raise HTTPException(
             status_code=e.response.status_code, detail = str(e)
         )

@@ -1,4 +1,5 @@
 import httpx
+from playwright.async_api import async_playwright
 from bs4 import BeautifulSoup
 
 # fetch Page -> parse HTML -> strip junk tags -> return clean plain text
@@ -10,11 +11,19 @@ async def scrape_text(url : str):
     }
     #set header and make the request
 
-    async with httpx.AsyncClient() as client:
-        response = await client.get(url, headers = header, timeout=10)
-        response.raise_for_status()
+    # async with httpx.AsyncClient() as client:
+        # response = await client.get(url, headers = header, timeout=10)
+        # response.raise_for_status()
+    async with async_playwright() as p:
+        browser = await p.chromium.launch()
+        page = await browser.new_page()
+        await page.goto(url)
+        await page.wait_for_load_state("networkidle")  # waits for JS to finish
+        content = await page.content()  # now gets full rendered HTML
+        await browser.close()
+
     #parse the HTML
-    soup = BeautifulSoup(response.text, "html.parser")
+    soup = BeautifulSoup(content.text, "html.parser")
     #Remove noise tags
     for tag in soup(["script", "style", "nav", "footer"]):
         tag.decompose()
